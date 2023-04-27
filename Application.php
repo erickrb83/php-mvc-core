@@ -5,6 +5,11 @@ use app\core\db\{Database, DbModel};
 use app\models\User;
 
 class Application{
+    const EVENT_BEFORE_REQUEST = 'before_request';
+    const EVENT_AFTER_REQUEST = 'after_request';
+
+    protected $eventListeners = [];
+
     public static $ROOT_DIR;
     public static Application $app;
     
@@ -45,17 +50,6 @@ class Application{
        return !self::$app->user;
     }
 
-    public function run(){
-        try{
-            echo $this->router->resolve();
-        } catch(\Exception $e) {
-            $this->response->setStatusCode($e->getCode());
-            echo $this->view->renderView('404', [
-                'exception' => $e
-            ]);
-        }
-    }
-
     public function setController($controller){
         $this->controller = $controller;
     }
@@ -75,5 +69,28 @@ class Application{
     public function logout(){
         $this->user = null;
         $this->session->remove('user');
+    }
+
+    public function run(){
+        $this->triggerEvent(self::EVENT_BEFORE_REQUEST);
+        try{
+            echo $this->router->resolve();
+        } catch(\Exception $e) {
+            $this->response->setStatusCode($e->getCode());
+            echo $this->view->renderView('404', [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    public function triggerEvent($eventName){
+        $callbacks = $this->eventListeners[$eventName] ?? [];
+        foreach($callbacks as $callback){
+            call_user_func($callback);
+        }
+    }
+
+    public function on($eventName, $callback) {
+        $this->eventListeners[$eventName][] = $callback;
     }
 }  
