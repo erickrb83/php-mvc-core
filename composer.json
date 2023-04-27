@@ -1,0 +1,16 @@
+{
+    "name": "ericbostard/core",
+    "description": "MVC CORE PHP Framework",
+    "autoload": {
+        "psr-4": {
+            "Ericbostard\\Core\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Eric Bostard",
+            "email": "eric.bostard@gmail.com"
+        }
+    ],
+    "require": {}
+}
